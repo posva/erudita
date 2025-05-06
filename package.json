@@ -1,0 +1,46 @@
+{
+  "name": "vite-erudite",
+  "type": "module",
+  "version": "0.0.0",
+  "packageManager": "pnpm@10.10.0",
+  "description": "A Vite plugin that runs an MCP server to retrieve and cache docs from your dependencies, giving LLMs up-to-date knowledge of the packages they need to use.",
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": {
+    "name": "Eduardo San Martin Morote",
+    "email": "posva13@gmail.com"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/posva/vite-erudite#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/posva/vite-erudite.git"
+  },
+  "bugs": {
+    "url": "https://github.com/posva/vite-erudite/issues"
+  },
+  "keywords": [
+    "vite",
+    "plugin",
+    "mcp",
+    "llm",
+    "documentation",
+    "dependencies",
+    "cache"
+  ],
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "tsup --watch",
+    "build": "tsup",
+    "test": "vitest",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix ."
+  }
+}
