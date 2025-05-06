@@ -1,0 +1,30 @@
+{
+  "name": "@vite-erudite/mcp-server",
+  "version": "0.1.0",
+  "description": "MCP server for managing documentation cache",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "bin": {
+    "erudite-mcp-server": "./dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.11.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.12",
+    "typescript": "^5.8.0"
+  }
+}

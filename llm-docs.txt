@@ -1,0 +1,15 @@
+# LLM Documentation Index
+
+## Model Context Protocol (MCP)
+- [MCP Documentation](./llm-docs/modelcontextprotocol.md): Core documentation for the Model Context Protocol
+- [MCP Type Definitions](./llm-docs/%40modelcontextprotocol/sdk.md): TypeScript SDK for MCP development
+
+## Documentation Structure
+- Keep documentation in markdown files within the `llm-docs/` directory
+- Reference documentation files in this index
+- Update this file when adding new documentation
+
+## Project Integration
+- MCP server implementation in `/packages/mcp-server`
+- Example usage in `/example/example.ts`
+- TypeScript types for MCP integration
