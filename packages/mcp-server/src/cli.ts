@@ -2,7 +2,7 @@
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { EruditeMcpServer } from './index'
 
-const DEFAULT_CACHE_DIR = './node_modules/.erudite/cache'
+const DEFAULT_CACHE_DIR = './node_modules/.erudita/cache'
 
 async function main() {
   const server = new EruditeMcpServer({

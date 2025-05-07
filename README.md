@@ -13,13 +13,13 @@ A Vite plugin that runs an MCP server to retrieve and cache documentation from y
 
 ```bash
 # Using pnpm (recommended)
-pnpm add -D vite-erudite
+pnpm add -D vite-erudita
 
 # Or using npm
-npm install --save-dev vite-erudite
+npm install --save-dev vite-erudita
 
 # Or using yarn
-yarn add -D vite-erudite
+yarn add -D vite-erudita
 ```
 
 ## Usage
@@ -29,19 +29,19 @@ yarn add -D vite-erudite
 Add the plugin to your `vite.config.ts`:
 
 ```typescript
-import { defineConfig } from 'vite';
-import { erudite } from 'vite-erudite';
+import { defineConfig } from 'vite'
+import { erudita } from 'vite-erudita'
 
 export default defineConfig({
   plugins: [
-    erudite({
-      // Optional: Custom cache directory (default: './.erudite/cache')
-      cacheDir: './.erudite/cache',
+    erudita({
+      // Optional: Custom cache directory (default: './.erudita/cache')
+      cacheDir: './.erudita/cache',
       // Optional: Port for the MCP server (default: 3000)
       port: 3000,
-    })
-  ]
-});
+    }),
+  ],
+})
 ```
 
 ### MCP Server
@@ -56,23 +56,23 @@ The plugin starts an MCP server that provides the following tools:
 
 ```typescript
 // Example using the MCP client to interact with the server
-const client = new McpClient('http://localhost:3000');
+const client = new McpClient('http://localhost:3000')
 
 // List available documentation
-const { docs } = await client.callTool('list_documentation', {});
+const { docs } = await client.callTool('list_documentation', {})
 
 // Update documentation for a package
 await client.callTool('update_documentation', {
   packageName: 'react',
-  version: '18.2.0'
-});
+  version: '18.2.0',
+})
 
 // Get documentation content
 const { content } = await client.callTool('get_documentation', {
   packageName: 'react',
   version: '18.2.0',
-  path: 'index.md'
-});
+  path: 'index.md',
+})
 ```
 
 ## Development
@@ -86,17 +86,28 @@ const { content } = await client.callTool('get_documentation', {
 
 1. Clone the repository
 2. Install dependencies:
+
    ```bash
    pnpm install
    ```
+
 3. Build the packages:
+
    ```bash
    pnpm build
    ```
+
 4. Start the development server:
+
    ```bash
    pnpm dev
    ```
+
+### Debugging
+
+```sh
+npx @modelcontextprotocol/inspector bun src/cli.ts
+```
 
 ## License
 

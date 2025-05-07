@@ -8,7 +8,7 @@ importers:
 
   .:
     dependencies:
-      '@vite-erudite/mcp-server':
+      '@vite-erudita/mcp-server':
         specifier: workspace:>=*
         version: link:packages/mcp-server
     devDependencies:

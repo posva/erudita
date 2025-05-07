@@ -1,6 +1,6 @@
 {
-  "name": "@vite-erudite/mcp-server",
-  "version": "0.1.0",
+  "name": "@erudita/mcp-server",
+  "version": "0.0.0",
   "description": "MCP server for managing documentation cache",
   "type": "module",
   "main": "dist/index.js",
@@ -9,7 +9,7 @@
     "access": "public"
   },
   "bin": {
-    "erudite-mcp-server": "./dist/cli.js"
+    "mcp-server-filesystem": "./dist/cli.js"
   },
   "files": [
     "dist"

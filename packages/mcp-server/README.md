@@ -42,7 +42,7 @@ The server provides the following tools:
 The server can be configured with the following environment variables:
 
 - `PORT`: Port to run the server on (default: 3000)
-- `CACHE_DIR`: Directory to store cached documentation (default: `./.erudite/cache`)
+- `CACHE_DIR`: Directory to store cached documentation (default: `./.erudita/cache`)
 
 ## Development
 
