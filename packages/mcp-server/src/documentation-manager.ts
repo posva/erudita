@@ -18,7 +18,7 @@ type CacheEntry = {
 }
 
 export class DocumentationManager {
-  private cacheDir: string
+  readonly cacheDir: string
   private cache: Map<string, CacheEntry> = new Map()
 
   constructor(options: { cacheDir: string }) {
@@ -128,7 +128,7 @@ export class DocumentationManager {
   async getDocumentation(
     packageName: string,
     version: string | undefined,
-    docPath: string[],
+    docPath: string,
   ): Promise<string> {
     const packageKey = this.getPackageKey(packageName, version)
     const cacheEntry = this.cache.get(packageKey)
@@ -139,7 +139,7 @@ export class DocumentationManager {
       )
     }
 
-    const content = cacheEntry.content[docPath.join('/')]
+    const content = cacheEntry.content[docPath]
     if (content === undefined) {
       throw new Error(`Documentation path ${docPath} not found in ${packageKey}`)
     }

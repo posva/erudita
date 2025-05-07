@@ -1,13 +1,9 @@
 #!/usr/bin/env node
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
-import { EruditeMcpServer } from './index'
-
-const DEFAULT_CACHE_DIR = './node_modules/.erudita/cache'
+import { EruditaMcpServer } from './index'
 
 async function main() {
-  const server = new EruditeMcpServer({
-    cacheDir: process.env.CACHE_DIR || DEFAULT_CACHE_DIR,
-  })
+  const server = new EruditaMcpServer()
 
   const transport = new StdioServerTransport()
   await server.connect(transport)
