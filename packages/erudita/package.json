@@ -1,5 +1,5 @@
 {
-  "name": "@erudita/cli",
+  "name": "erudita",
   "version": "0.0.0",
   "description": "CLI for downloading and caching documentation from llms.txt",
   "type": "module",
