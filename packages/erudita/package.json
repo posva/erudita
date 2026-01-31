@@ -1,0 +1,30 @@
+{
+  "name": "@erudita/cli",
+  "version": "0.0.0",
+  "description": "CLI for downloading and caching documentation from llms.txt",
+  "type": "module",
+  "main": "dist/cli.js",
+  "bin": {
+    "erudita": "./dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "gunshi": "^0.27.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.12",
+    "msw": "^2.7.0",
+    "typescript": "^5.8.0",
+    "vitest": "^3.1.3"
+  }
+}
