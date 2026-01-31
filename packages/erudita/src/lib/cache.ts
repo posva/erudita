@@ -1,7 +1,8 @@
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { homedir, platform } from 'node:os'
 import { join } from 'node:path'
-import type { CachedPackageMeta, CacheIndex, LlmsDoc } from '../types.ts'
+import type { CachedPackageMeta, LlmsDoc } from '../types.ts'
+import { parseLlmsTxt } from './llms-parser.ts'
 
 const APP_NAME = 'erudita'
 
@@ -49,13 +50,6 @@ export function ensureCacheDir(): string {
 }
 
 /**
- * Get path to the cache index file
- */
-function getIndexPath(): string {
-  return join(getCacheDir(), 'meta.json')
-}
-
-/**
  * Get path to a package's cache directory
  */
 function getPackageDir(packageName: string): string {
@@ -65,50 +59,61 @@ function getPackageDir(packageName: string): string {
 }
 
 /**
- * Read the cache index
- */
-export function readIndex(): CacheIndex {
-  const indexPath = getIndexPath()
-  if (!existsSync(indexPath)) {
-    return { packages: {} }
-  }
-  try {
-    return JSON.parse(readFileSync(indexPath, 'utf-8'))
-  } catch {
-    return { packages: {} }
-  }
-}
-
-/**
- * Write the cache index
- */
-export function writeIndex(index: CacheIndex): void {
-  ensureCacheDir()
-  writeFileSync(getIndexPath(), JSON.stringify(index, null, 2))
-}
-
-/**
  * Check if a package is cached
  */
 export function isCached(packageName: string): boolean {
-  const index = readIndex()
-  return packageName in index.packages
+  return existsSync(getPackageDir(packageName))
 }
 
 /**
  * Get cached package metadata
  */
 export function getCachedMeta(packageName: string): CachedPackageMeta | null {
-  const index = readIndex()
-  return index.packages[packageName] ?? null
+  const packageDir = getPackageDir(packageName)
+  const metaPath = join(packageDir, 'meta.json')
+  if (!existsSync(metaPath)) {
+    return null
+  }
+  try {
+    return JSON.parse(readFileSync(metaPath, 'utf-8'))
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Get cached parsed doc (parses llms.txt on demand)
+ */
+export function getCachedDoc(packageName: string): LlmsDoc | null {
+  const content = getCachedLlmsTxt(packageName)
+  if (!content) {
+    return null
+  }
+  return parseLlmsTxt(content)
 }
 
 /**
  * List all cached packages
  */
 export function listCached(): CachedPackageMeta[] {
-  const index = readIndex()
-  return Object.values(index.packages)
+  const packagesDir = join(getCacheDir(), 'packages')
+  if (!existsSync(packagesDir)) {
+    return []
+  }
+  const dirs = readdirSync(packagesDir, { withFileTypes: true })
+    .filter((d) => d.isDirectory())
+    .map((d) => d.name)
+
+  const result: CachedPackageMeta[] = []
+  for (const dir of dirs) {
+    // Convert back: @scope__name -> @scope/name
+    const packageName = dir.replace('__', '/')
+    const meta = getCachedMeta(packageName)
+    if (meta) {
+      result.push(meta)
+    }
+  }
+  return result
 }
 
 /**
@@ -117,7 +122,7 @@ export function listCached(): CachedPackageMeta[] {
 export function cachePackage(
   packageName: string,
   sourceUrl: string,
-  doc: LlmsDoc,
+  _doc: LlmsDoc,
   rawLlmsTxt: string,
   docFiles: Map<string, string>
 ): void {
@@ -136,19 +141,13 @@ export function cachePackage(
     writeFileSync(join(docsDir, safeName), content)
   }
 
-  // Write package metadata
+  // Write package metadata (minimal - doc is parsed on demand from llms.txt)
   const meta: CachedPackageMeta = {
     name: packageName,
     sourceUrl,
     fetchedAt: Date.now(),
-    doc,
   }
   writeFileSync(join(packageDir, 'meta.json'), JSON.stringify(meta, null, 2))
-
-  // Update index
-  const index = readIndex()
-  index.packages[packageName] = meta
-  writeIndex(index)
 }
 
 /**
@@ -186,12 +185,6 @@ export function removeFromCache(packageName: string): boolean {
   }
 
   rmSync(packageDir, { recursive: true, force: true })
-
-  // Update index
-  const index = readIndex()
-  delete index.packages[packageName]
-  writeIndex(index)
-
   return true
 }
 

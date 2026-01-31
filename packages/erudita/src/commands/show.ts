@@ -1,5 +1,5 @@
 import { define } from 'gunshi'
-import { getCachedDocFile, getCachedLlmsTxt, getCachedMeta } from '../lib/cache.ts'
+import { getCachedDoc, getCachedDocFile, getCachedLlmsTxt, getCachedMeta } from '../lib/cache.ts'
 
 export default define({
   name: 'show',
@@ -42,24 +42,28 @@ export default define({
       return
     }
 
+    const doc = getCachedDoc(packageName)
+    if (!doc) {
+      console.log(`Cache corrupted for "${packageName}". Run: erudita fetch ${packageName} --force`)
+      return
+    }
+
     // Show specific entry
     if (entry) {
       const index = parseInt(entry as string, 10)
       let docEntry
 
       if (!isNaN(index)) {
-        docEntry = meta.doc.entries[index]
+        docEntry = doc.entries[index]
       } else {
         // Try to match by title
-        docEntry = meta.doc.entries.find(
-          (e) => e.title.toLowerCase().includes((entry as string).toLowerCase())
-        )
+        docEntry = doc.entries.find((e) => e.title.toLowerCase().includes((entry as string).toLowerCase()))
       }
 
       if (!docEntry) {
         console.log(`Entry "${entry}" not found.`)
         console.log('\nAvailable entries:')
-        meta.doc.entries.forEach((e, i) => {
+        doc.entries.forEach((e, i) => {
           console.log(`  ${i}: ${e.title}`)
         })
         return
@@ -84,18 +88,18 @@ export default define({
     }
 
     // Show overview
-    console.log(`# ${meta.doc.title || packageName}\n`)
-    if (meta.doc.description) {
-      console.log(`> ${meta.doc.description}\n`)
+    console.log(`# ${doc.title || packageName}\n`)
+    if (doc.description) {
+      console.log(`> ${doc.description}\n`)
     }
     console.log(`Source: ${meta.sourceUrl}`)
     console.log(`Fetched: ${new Date(meta.fetchedAt).toLocaleString()}`)
-    console.log(`\n## Documentation Entries (${meta.doc.entries.length})\n`)
+    console.log(`\n## Documentation Entries (${doc.entries.length})\n`)
 
-    meta.doc.entries.forEach((entry, i) => {
-      console.log(`  ${i}: ${entry.title}`)
-      if (entry.description) {
-        console.log(`     ${entry.description}`)
+    doc.entries.forEach((docEntry, i) => {
+      console.log(`  ${i}: ${docEntry.title}`)
+      if (docEntry.description) {
+        console.log(`     ${docEntry.description}`)
       }
     })
 

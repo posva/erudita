@@ -32,16 +32,6 @@ export interface CachedPackageMeta {
   sourceUrl: string
   /** Unix timestamp of when the cache was created */
   fetchedAt: number
-  /** Parsed llms.txt structure */
-  doc: LlmsDoc
-}
-
-/**
- * Global cache index
- */
-export interface CacheIndex {
-  /** Map of package name to metadata */
-  packages: Record<string, CachedPackageMeta>
 }
 
 /**

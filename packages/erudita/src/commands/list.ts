@@ -1,5 +1,5 @@
 import { define } from 'gunshi'
-import { listCached } from '../lib/cache.ts'
+import { getCachedDoc, listCached } from '../lib/cache.ts'
 
 export default define({
   name: 'list',
@@ -23,15 +23,16 @@ export default define({
     console.log(`Cached packages (${packages.length}):\n`)
 
     for (const pkg of packages) {
+      const doc = getCachedDoc(pkg.name)
+      const entriesCount = doc?.entries.length ?? 0
       if (verbose) {
         const date = new Date(pkg.fetchedAt).toLocaleString()
         console.log(`  ${pkg.name}`)
         console.log(`    Source: ${pkg.sourceUrl}`)
         console.log(`    Fetched: ${date}`)
-        console.log(`    Entries: ${pkg.doc.entries.length}`)
+        console.log(`    Entries: ${entriesCount}`)
         console.log()
       } else {
-        const entriesCount = pkg.doc.entries.length
         console.log(`  ${pkg.name} (${entriesCount} docs)`)
       }
     }

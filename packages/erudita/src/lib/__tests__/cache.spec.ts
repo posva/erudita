@@ -6,6 +6,7 @@ import {
   _setCacheDir,
   cachePackage,
   clearCache,
+  getCachedDoc,
   getCachedLlmsTxt,
   getCachedMeta,
   getCacheDir,
@@ -82,14 +83,33 @@ describe('cache', () => {
         title: 'Test',
         entries: [{ title: 'API', url: './api.md' }],
       }
-      cachePackage('meta-test', 'https://test.com', doc, '# content', new Map())
+      cachePackage('meta-test', 'https://test.com', doc, '# Test\n\n- [API](./api.md)', new Map())
 
       const meta = getCachedMeta('meta-test')
       expect(meta).not.toBeNull()
       expect(meta?.name).toBe('meta-test')
       expect(meta?.sourceUrl).toBe('https://test.com')
-      expect(meta?.doc.title).toBe('Test')
       expect(meta?.fetchedAt).toBeGreaterThan(0)
+    })
+  })
+
+  describe('getCachedDoc', () => {
+    it('returns null for uncached packages', () => {
+      expect(getCachedDoc('not-cached')).toBeNull()
+    })
+
+    it('parses llms.txt on demand', () => {
+      const doc = {
+        title: 'Test',
+        entries: [{ title: 'API', url: './api.md' }],
+      }
+      cachePackage('doc-test', 'https://test.com', doc, '# Test Doc\n\n- [API Reference](./api.md)', new Map())
+
+      const cachedDoc = getCachedDoc('doc-test')
+      expect(cachedDoc).not.toBeNull()
+      expect(cachedDoc?.title).toBe('Test Doc')
+      expect(cachedDoc?.entries).toHaveLength(1)
+      expect(cachedDoc?.entries[0].title).toBe('API Reference')
     })
   })
 
