@@ -6,11 +6,6 @@ export default define({
   name: 'update',
   description: 'Refresh cached documentation for packages',
   args: {
-    packages: {
-      type: 'string',
-      multiple: true,
-      description: 'Package names to update',
-    },
     all: {
       type: 'boolean',
       short: 'a',
@@ -18,8 +13,8 @@ export default define({
     },
   },
   run: async (ctx) => {
-    const { packages = [], all = false } = ctx.values
-    let packagesToUpdate: string[] = packages as string[]
+    const { all = false } = ctx.values
+    let packagesToUpdate = (ctx.positionals as string[]).filter((p) => p !== 'update')
 
     // If --all flag, update all cached packages
     if (all) {

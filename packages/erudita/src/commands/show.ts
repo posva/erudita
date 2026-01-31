@@ -5,10 +5,6 @@ export default define({
   name: 'show',
   description: 'Display cached documentation for a package',
   args: {
-    package: {
-      type: 'string',
-      description: 'Package name to show docs for',
-    },
     entry: {
       type: 'string',
       short: 'e',
@@ -22,8 +18,8 @@ export default define({
   },
   run: async (ctx) => {
     const { entry, raw = false } = ctx.values
-    // Get package from positionals
-    const packageName = ctx.positionals[0] || (ctx.values.package as string)
+    const positionals = (ctx.positionals as string[]).filter((p) => p !== 'show')
+    const packageName = positionals[0] as string | undefined
 
     if (!packageName) {
       console.log('Usage: erudita show <package> [--entry <index>] [--raw]')

@@ -5,11 +5,6 @@ export default define({
   name: 'clear',
   description: 'Remove cached documentation',
   args: {
-    packages: {
-      type: 'string',
-      multiple: true,
-      description: 'Package names to remove from cache',
-    },
     all: {
       type: 'boolean',
       short: 'a',
@@ -17,8 +12,8 @@ export default define({
     },
   },
   run: async (ctx) => {
-    const { packages = [], all = false } = ctx.values
-    const packagesToRemove: string[] = packages as string[]
+    const { all = false } = ctx.values
+    const packagesToRemove = (ctx.positionals as string[]).filter((p) => p !== 'clear')
 
     // If --all flag, clear everything
     if (all) {

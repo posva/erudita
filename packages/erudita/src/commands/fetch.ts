@@ -28,11 +28,6 @@ export default define({
   name: 'fetch',
   description: 'Fetch llms.txt documentation for packages',
   args: {
-    packages: {
-      type: 'string',
-      multiple: true,
-      description: 'Package names to fetch docs for',
-    },
     all: {
       type: 'boolean',
       short: 'a',
@@ -45,8 +40,9 @@ export default define({
     },
   },
   run: async (ctx) => {
-    const { packages = [], all = false, force = false } = ctx.values
-    let packagesToFetch: string[] = packages as string[]
+    const { all = false, force = false } = ctx.values
+    // Positional args are the package names (filter out the command name itself)
+    let packagesToFetch = (ctx.positionals as string[]).filter((p) => p !== 'fetch')
 
     // If --all flag, read from package.json
     if (all) {
