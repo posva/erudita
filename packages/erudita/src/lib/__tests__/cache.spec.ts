@@ -12,7 +12,7 @@ import {
   isCached,
   listCached,
   removeFromCache,
-} from '../cache.js'
+} from '../cache.ts'
 
 const testCacheDir = join(tmpdir(), 'erudita-test-cache-' + Date.now() + '-' + Math.random().toString(36).slice(2))
 

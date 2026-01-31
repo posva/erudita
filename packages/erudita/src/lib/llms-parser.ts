@@ -1,4 +1,4 @@
-import type { LlmsDoc, LlmsEntry } from '../types.js'
+import type { LlmsDoc, LlmsEntry } from '../types.ts'
 
 /**
  * Parse llms.txt markdown content into structured format

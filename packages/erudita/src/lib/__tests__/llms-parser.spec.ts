@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { extractDocUrls, parseLlmsTxt, resolveUrl } from '../llms-parser.js'
+import { extractDocUrls, parseLlmsTxt, resolveUrl } from '../llms-parser.ts'
 
 describe('parseLlmsTxt', () => {
   it('parses title from H1', () => {

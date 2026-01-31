@@ -1,6 +1,6 @@
 import { define } from 'gunshi'
-import { cachePackage, getCachedMeta, listCached } from '../lib/cache.js'
-import { fetchPackageDocs } from '../lib/fetcher.js'
+import { cachePackage, getCachedMeta, listCached } from '../lib/cache.ts'
+import { fetchPackageDocs } from '../lib/fetcher.ts'
 
 export default define({
   name: 'update',

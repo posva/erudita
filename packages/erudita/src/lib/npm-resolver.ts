@@ -1,4 +1,4 @@
-import type { NpmPackageMeta } from '../types.js'
+import type { NpmPackageMeta } from '../types.ts'
 
 const NPM_REGISTRY = 'https://registry.npmjs.org'
 

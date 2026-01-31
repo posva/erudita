@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 import { cli } from 'gunshi'
-import fetchCommand from './commands/fetch.js'
-import listCommand from './commands/list.js'
-import showCommand from './commands/show.js'
-import updateCommand from './commands/update.js'
-import clearCommand from './commands/clear.js'
+import fetchCommand from './commands/fetch.ts'
+import listCommand from './commands/list.ts'
+import showCommand from './commands/show.ts'
+import updateCommand from './commands/update.ts'
+import clearCommand from './commands/clear.ts'
 
 const mainCommand = {
   name: 'erudita',

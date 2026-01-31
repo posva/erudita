@@ -1,9 +1,9 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { define } from 'gunshi'
-import { cachePackage, isCached } from '../lib/cache.js'
-import { fetchPackageDocs } from '../lib/fetcher.js'
-import { resolvePackageUrl } from '../lib/npm-resolver.js'
+import { cachePackage, isCached } from '../lib/cache.ts'
+import { fetchPackageDocs } from '../lib/fetcher.ts'
+import { resolvePackageUrl } from '../lib/npm-resolver.ts'
 
 /**
  * Read package.json dependencies from cwd

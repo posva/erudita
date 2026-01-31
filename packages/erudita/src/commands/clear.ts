@@ -1,5 +1,5 @@
 import { define } from 'gunshi'
-import { clearCache, listCached, removeFromCache } from '../lib/cache.js'
+import { clearCache, listCached, removeFromCache } from '../lib/cache.ts'
 
 export default define({
   name: 'clear',

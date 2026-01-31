@@ -1,5 +1,5 @@
 import { define } from 'gunshi'
-import { listCached } from '../lib/cache.js'
+import { listCached } from '../lib/cache.ts'
 
 export default define({
   name: 'list',

@@ -1,7 +1,7 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest'
 import { http, HttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
-import { extractWebsiteUrl, fetchNpmMeta, resolvePackageUrl } from '../npm-resolver.js'
+import { extractWebsiteUrl, fetchNpmMeta, resolvePackageUrl } from '../npm-resolver.ts'
 
 const server = setupServer()
 

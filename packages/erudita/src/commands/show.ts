@@ -1,5 +1,5 @@
 import { define } from 'gunshi'
-import { getCachedDocFile, getCachedLlmsTxt, getCachedMeta } from '../lib/cache.js'
+import { getCachedDocFile, getCachedLlmsTxt, getCachedMeta } from '../lib/cache.ts'
 
 export default define({
   name: 'show',

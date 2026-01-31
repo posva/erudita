@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { homedir, platform } from 'node:os'
 import { join } from 'node:path'
-import type { CachedPackageMeta, CacheIndex, LlmsDoc } from '../types.js'
+import type { CachedPackageMeta, CacheIndex, LlmsDoc } from '../types.ts'
 
 const APP_NAME = 'erudita'
 

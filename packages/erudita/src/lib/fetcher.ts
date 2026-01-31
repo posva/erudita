@@ -1,5 +1,5 @@
-import { extractDocUrls, parseLlmsTxt, resolveUrl } from './llms-parser.js'
-import type { LlmsDoc } from '../types.js'
+import { extractDocUrls, parseLlmsTxt, resolveUrl } from './llms-parser.ts'
+import type { LlmsDoc } from '../types.ts'
 
 export interface FetchResult {
   success: boolean
