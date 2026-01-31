@@ -45,3 +45,17 @@ export interface NpmPackageMeta {
     url?: string
   }
 }
+
+/**
+ * Progress event during documentation fetch
+ */
+export interface FetchProgressEvent {
+  phase: 'llms-txt' | 'docs'
+  total: number
+  completed: number
+  errors: number
+  url?: string
+  error?: string
+}
+
+export type FetchProgressCallback = (event: FetchProgressEvent) => void

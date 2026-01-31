@@ -80,15 +80,23 @@ export default define({
       // Resolve package URL
       const baseUrl = await resolvePackageUrl(pkg)
       if (!baseUrl) {
-        process.stdout.write(`\r  [fail] ${pkg} - could not find website URL\n`)
+        process.stdout.write(`\r\x1b[K  [fail] ${pkg} - could not find website URL\n`)
         failCount++
         continue
       }
 
-      // Fetch docs
-      const result = await fetchPackageDocs(baseUrl)
+      // Fetch docs with progress
+      let lastErrors = 0
+      const result = await fetchPackageDocs(baseUrl, (event) => {
+        if (event.phase === 'docs') {
+          lastErrors = event.errors
+          const errStr = event.errors > 0 ? ` (${event.errors} error${event.errors > 1 ? 's' : ''})` : ''
+          const line = `  [${event.completed}/${event.total}] ${pkg}${errStr}`
+          process.stdout.write(`\r\x1b[K${line}`)
+        }
+      })
       if (!result.success) {
-        process.stdout.write(`\r  [fail] ${pkg} - ${result.error}\n`)
+        process.stdout.write(`\r\x1b[K  [fail] ${pkg} - ${result.error}\n`)
         failCount++
         continue
       }
@@ -97,7 +105,8 @@ export default define({
       cachePackage(pkg, baseUrl, result.doc!, result.rawLlmsTxt!, result.docFiles!)
 
       const docCount = result.docFiles?.size || 0
-      process.stdout.write(`\r  [ ok ] ${pkg} (${docCount} docs)\n`)
+      const errStr = lastErrors > 0 ? `, ${lastErrors} error${lastErrors > 1 ? 's' : ''}` : ''
+      process.stdout.write(`\r\x1b[K  [ ok ] ${pkg} (${docCount} docs${errStr})\n`)
       successCount++
     }
 

@@ -1,5 +1,5 @@
 import { extractDocUrls, parseLlmsTxt, resolveUrl } from './llms-parser.ts'
-import type { LlmsDoc } from '../types.ts'
+import type { LlmsDoc, FetchProgressCallback } from '../types.ts'
 
 export interface FetchResult {
   success: boolean
@@ -93,8 +93,12 @@ export async function fetchDocFile(url: string): Promise<string | null> {
 /**
  * Fetch llms.txt and all linked documentation files
  */
-export async function fetchPackageDocs(baseUrl: string): Promise<FetchResult> {
+export async function fetchPackageDocs(
+  baseUrl: string,
+  onProgress?: FetchProgressCallback
+): Promise<FetchResult> {
   // Fetch llms.txt
+  onProgress?.({ phase: 'llms-txt', total: 1, completed: 0, errors: 0 })
   const llmsResult = await fetchLlmsTxt(baseUrl)
   if (!llmsResult) {
     return {
@@ -116,6 +120,10 @@ export async function fetchPackageDocs(baseUrl: string): Promise<FetchResult> {
   const docUrls = extractDocUrls(doc, llmsResult.url)
   const docFiles = new Map<string, string>()
 
+  let completed = 0
+  let errors = 0
+  const total = docUrls.length
+
   await Promise.all(
     docUrls.map(async (url) => {
       const content = await fetchDocFile(url)
@@ -124,7 +132,11 @@ export async function fetchPackageDocs(baseUrl: string): Promise<FetchResult> {
         const urlObj = new URL(url)
         const filename = urlObj.pathname.split('/').pop() || 'doc.md'
         docFiles.set(filename, content)
+        completed++
+      } else {
+        errors++
       }
+      onProgress?.({ phase: 'docs', total, completed, errors, url })
     })
   )
 
