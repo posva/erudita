@@ -1,4 +1,5 @@
 import { extractDocUrls, parseLlmsTxt, resolveUrl } from './llms-parser.ts'
+import { asyncPool } from './async-pool.ts'
 import type { LlmsDoc, FetchProgressCallback } from '../types.ts'
 
 export interface FetchResult {
@@ -8,6 +9,13 @@ export interface FetchResult {
   docFiles?: Map<string, string>
   error?: string
 }
+
+export interface FetchOptions {
+  onProgress?: FetchProgressCallback
+  concurrency?: number
+}
+
+const DEFAULT_CONCURRENCY = 5
 
 const LLMS_TXT_PATHS = ['/llms.txt', '/llms-full.txt']
 const DEFAULT_TIMEOUT = 10000
@@ -95,8 +103,10 @@ export async function fetchDocFile(url: string): Promise<string | null> {
  */
 export async function fetchPackageDocs(
   baseUrl: string,
-  onProgress?: FetchProgressCallback
+  options?: FetchOptions
 ): Promise<FetchResult> {
+  const { onProgress, concurrency = DEFAULT_CONCURRENCY } = options || {}
+
   // Fetch llms.txt
   onProgress?.({ phase: 'llms-txt', total: 1, completed: 0, errors: 0 })
   const llmsResult = await fetchLlmsTxt(baseUrl)
@@ -124,21 +134,19 @@ export async function fetchPackageDocs(
   let errors = 0
   const total = docUrls.length
 
-  await Promise.all(
-    docUrls.map(async (url) => {
-      const content = await fetchDocFile(url)
-      if (content) {
-        // Use the path part of the URL as the filename
-        const urlObj = new URL(url)
-        const filename = urlObj.pathname.split('/').pop() || 'doc.md'
-        docFiles.set(filename, content)
-        completed++
-      } else {
-        errors++
-      }
-      onProgress?.({ phase: 'docs', total, completed, errors, url })
-    })
-  )
+  await asyncPool(concurrency, docUrls, async (url) => {
+    const content = await fetchDocFile(url)
+    if (content) {
+      // Use the path part of the URL as the filename
+      const urlObj = new URL(url)
+      const filename = urlObj.pathname.split('/').pop() || 'doc.md'
+      docFiles.set(filename, content)
+      completed++
+    } else {
+      errors++
+    }
+    onProgress?.({ phase: 'docs', total, completed, errors, url })
+  })
 
   return {
     success: true,

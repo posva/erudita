@@ -38,9 +38,15 @@ export default define({
       short: 'f',
       description: 'Force refetch even if already cached',
     },
+    concurrency: {
+      type: 'string',
+      short: 'c',
+      description: 'Number of concurrent downloads (default: 5)',
+    },
   },
   run: async (ctx) => {
-    const { all = false, force = false } = ctx.values
+    const { all = false, force = false, concurrency: concurrencyStr } = ctx.values
+    const concurrency = concurrencyStr ? parseInt(concurrencyStr, 10) : undefined
     // Positional args are the package names (filter out the command name itself)
     let packagesToFetch = (ctx.positionals as string[]).filter((p) => p !== 'fetch')
 
@@ -87,13 +93,16 @@ export default define({
 
       // Fetch docs with progress
       let lastErrors = 0
-      const result = await fetchPackageDocs(baseUrl, (event) => {
-        if (event.phase === 'docs') {
-          lastErrors = event.errors
-          const errStr = event.errors > 0 ? ` (${event.errors} error${event.errors > 1 ? 's' : ''})` : ''
-          const line = `  [${event.completed}/${event.total}] ${pkg}${errStr}`
-          process.stdout.write(`\r\x1b[K${line}`)
-        }
+      const result = await fetchPackageDocs(baseUrl, {
+        concurrency,
+        onProgress(event) {
+          if (event.phase === 'docs') {
+            lastErrors = event.errors
+            const errStr = event.errors > 0 ? ` (${event.errors} error${event.errors > 1 ? 's' : ''})` : ''
+            const line = `  [${event.completed}/${event.total}] ${pkg}${errStr}`
+            process.stdout.write(`\r\x1b[K${line}`)
+          }
+        },
       })
       if (!result.success) {
         process.stdout.write(`\r\x1b[K  [fail] ${pkg} - ${result.error}\n`)

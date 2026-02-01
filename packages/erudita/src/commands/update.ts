@@ -11,9 +11,15 @@ export default define({
       short: 'a',
       description: 'Update all cached packages',
     },
+    concurrency: {
+      type: 'string',
+      short: 'c',
+      description: 'Number of concurrent downloads (default: 5)',
+    },
   },
   run: async (ctx) => {
-    const { all = false } = ctx.values
+    const { all = false, concurrency: concurrencyStr } = ctx.values
+    const concurrency = concurrencyStr ? parseInt(concurrencyStr, 10) : undefined
     let packagesToUpdate = (ctx.positionals as string[]).filter((p) => p !== 'update')
 
     // If --all flag, update all cached packages
@@ -51,7 +57,7 @@ export default define({
       process.stdout.write(`  [....] ${pkg}`)
 
       // Fetch fresh docs using the stored source URL
-      const result = await fetchPackageDocs(meta.sourceUrl)
+      const result = await fetchPackageDocs(meta.sourceUrl, { concurrency })
       if (!result.success) {
         process.stdout.write(`\r  [fail] ${pkg} - ${result.error}\n`)
         failCount++
