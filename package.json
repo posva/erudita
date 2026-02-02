@@ -2,6 +2,26 @@
   "name": "erudita",
   "version": "0.0.1",
   "description": "CLI for downloading and caching documentation from llms.txt",
+  "keywords": [
+    "cache",
+    "cli",
+    "documentation",
+    "llms"
+  ],
+  "homepage": "https://github.com/posva/erudita",
+  "bugs": {
+    "url": "https://github.com/posva/erudita/issues"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Eduardo San Martin Morote",
+    "email": "posva13@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/posva/erudita.git"
+  },
+  "funding": "https://github.com/sponsors/posva",
   "bin": {
     "erudita": "./dist/cli.mjs"
   },
@@ -9,6 +29,7 @@
     "dist"
   ],
   "type": "module",
+  "sideEffects": false,
   "main": "dist/cli.mjs",
   "publishConfig": {
     "access": "public"
