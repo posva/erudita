@@ -2,14 +2,14 @@
   "name": "erudita",
   "version": "0.0.0",
   "description": "CLI for downloading and caching documentation from llms.txt",
-  "type": "module",
-  "main": "dist/cli.mjs",
   "bin": {
     "erudita": "./dist/cli.mjs"
   },
   "files": [
     "dist"
   ],
+  "type": "module",
+  "main": "dist/cli.mjs",
   "publishConfig": {
     "access": "public"
   },
@@ -17,6 +17,8 @@
     "build": "tsdown",
     "start": "node ./src/cli.ts",
     "dev": "vitest",
+    "lint": "oxlint",
+    "fmt": "oxfmt",
     "test": "vitest run"
   },
   "dependencies": {
@@ -24,9 +26,22 @@
   },
   "devDependencies": {
     "@types/node": "^22.15.12",
+    "lint-staged": "^16.2.7",
     "msw": "^2.7.0",
+    "oxfmt": "^0.28.0",
+    "oxlint": "^1.43.0",
+    "simple-git-hooks": "^2.13.1",
     "tsdown": "^0.20.1",
     "typescript": "^5.8.0",
     "vitest": "^4.0.0"
-  }
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm lint-staged",
+    "commit-msg": "node scripts/verifyCommit.js"
+  },
+  "lint-staged": {
+    "*": "oxfmt --no-error-on-unmatched-pattern",
+    "*.{js,jsx,ts,tsx,mjs,cjs}": "oxlint --fix"
+  },
+  "packageManager": "pnpm@10.28.2"
 }
