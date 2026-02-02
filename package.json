@@ -16,16 +16,17 @@
   "scripts": {
     "build": "tsdown",
     "start": "node ./src/cli.ts",
-    "dev": "vitest",
+    "dev": "vitest --coverage",
     "lint": "oxlint",
     "fmt": "oxfmt",
-    "test": "vitest run"
+    "test": "vitest run --coverage"
   },
   "dependencies": {
     "gunshi": "^0.27.0"
   },
   "devDependencies": {
     "@types/node": "^22.15.12",
+    "@vitest/coverage-v8": "4.0.18",
     "lint-staged": "^16.2.7",
     "msw": "^2.7.0",
     "oxfmt": "^0.28.0",
