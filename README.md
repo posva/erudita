@@ -1,112 +1,25 @@
-# Vite Erudite
+# Erudita
 
-A Vite plugin that runs an MCP server to retrieve and cache documentation from your dependencies, giving LLMs up-to-date knowledge of the packages they need to use.
+[![CI](https://github.com/posva/erudita/actions/workflows/ci.yml/badge.svg)](https://github.com/posva/erudita/actions/workflows/ci.yml)
+[![npm version](https://badgen.net/npm/v/erudita)](https://www.npmjs.com/package/erudita)
+[![codecov](https://codecov.io/gh/posva/erudita/graph/badge.svg)](https://codecov.io/gh/posva/erudita)
 
-## Features
-
-- **Documentation Caching**: Automatically downloads and caches documentation for your project's dependencies
-- **MCP Integration**: Exposes documentation through the Model Context Protocol (MCP) for easy integration with LLMs
-- **On-Demand Updates**: Update documentation for specific packages as needed
-- **TypeScript Support**: Built with TypeScript for type safety and better developer experience
+CLI for downloading and caching documentation from `llms.txt`.
 
 ## Installation
 
 ```bash
-# Using pnpm (recommended)
-pnpm add -D vite-erudita
-
-# Or using npm
-npm install --save-dev vite-erudita
-
-# Or using yarn
-yarn add -D vite-erudita
+pnpm add -g erudita
 ```
 
 ## Usage
 
-### Vite Configuration
+```bash
+# Download docs for a package
+erudita fetch vue
 
-Add the plugin to your `vite.config.ts`:
-
-```typescript
-import { defineConfig } from 'vite'
-import { erudita } from 'vite-erudita'
-
-export default defineConfig({
-  plugins: [
-    erudita({
-      // Optional: Custom cache directory (default: './.erudita/cache')
-      cacheDir: './.erudita/cache',
-      // Optional: Port for the MCP server (default: 3000)
-      port: 3000,
-    }),
-  ],
-})
-```
-
-### MCP Server
-
-The plugin starts an MCP server that provides the following tools:
-
-1. **list_documentation**: List all available documentation packages and versions
-2. **update_documentation**: Update documentation for a specific package
-3. **get_documentation**: Get documentation content for a specific package and path
-
-### Example Usage with MCP Client
-
-```typescript
-// Example using the MCP client to interact with the server
-const client = new McpClient('http://localhost:3000')
-
-// List available documentation
-const { docs } = await client.callTool('list_documentation', {})
-
-// Update documentation for a package
-await client.callTool('update_documentation', {
-  packageName: 'react',
-  version: '18.2.0',
-})
-
-// Get documentation content
-const { content } = await client.callTool('get_documentation', {
-  packageName: 'react',
-  version: '18.2.0',
-  path: 'index.md',
-})
-```
-
-## Development
-
-### Project Structure
-
-- `packages/mcp-server`: MCP server implementation for managing documentation cache
-- `packages/vite-plugin`: Vite plugin implementation (coming soon)
-
-### Setup
-
-1. Clone the repository
-2. Install dependencies:
-
-   ```bash
-   pnpm install
-   ```
-
-3. Build the packages:
-
-   ```bash
-   pnpm build
-   ```
-
-4. Start the development server:
-
-   ```bash
-   pnpm dev
-   ```
-
-### Debugging
-
-```sh
-npx @modelcontextprotocol/inspector bun src/cli.ts
+# List cached documentation
+erudita list
 ```
 
 ## License
