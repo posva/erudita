@@ -37,6 +37,7 @@
   "scripts": {
     "build": "tsdown",
     "start": "node ./src/cli.ts",
+    "release": "node scripts/release.ts",
     "dev": "vitest --coverage",
     "lint": "oxlint",
     "fmt": "oxfmt",
