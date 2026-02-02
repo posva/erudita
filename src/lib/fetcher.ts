@@ -26,7 +26,7 @@ const MAX_RETRIES = 3
  */
 async function fetchWithRetry(
   url: string,
-  options: { timeout?: number; retries?: number } = {}
+  options: { timeout?: number; retries?: number } = {},
 ): Promise<Response | null> {
   const { timeout = DEFAULT_TIMEOUT, retries = MAX_RETRIES } = options
 
@@ -70,7 +70,9 @@ async function fetchWithRetry(
  * Try to fetch llms.txt from a base URL
  * Tries multiple paths: /llms.txt, /llms-full.txt
  */
-export async function fetchLlmsTxt(baseUrl: string): Promise<{ content: string; url: string } | null> {
+export async function fetchLlmsTxt(
+  baseUrl: string,
+): Promise<{ content: string; url: string } | null> {
   for (const path of LLMS_TXT_PATHS) {
     const url = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) + path : baseUrl + path
 
@@ -103,7 +105,7 @@ export async function fetchDocFile(url: string): Promise<string | null> {
  */
 export async function fetchPackageDocs(
   baseUrl: string,
-  options?: FetchOptions
+  options?: FetchOptions,
 ): Promise<FetchResult> {
   const { onProgress, concurrency = DEFAULT_CONCURRENCY } = options || {}
 

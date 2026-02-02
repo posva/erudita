@@ -21,7 +21,7 @@ describe('fetchNpmMeta', () => {
             url: 'git+https://github.com/vuejs/core.git',
           },
         })
-      })
+      }),
     )
 
     const meta = await fetchNpmMeta('vue')
@@ -39,7 +39,7 @@ describe('fetchNpmMeta', () => {
     server.use(
       http.get('https://registry.npmjs.org/nonexistent-package-xyz', () => {
         return new HttpResponse(null, { status: 404 })
-      })
+      }),
     )
 
     const meta = await fetchNpmMeta('nonexistent-package-xyz')
@@ -53,7 +53,7 @@ describe('fetchNpmMeta', () => {
           name: '@vue/compiler-sfc',
           homepage: 'https://vuejs.org',
         })
-      })
+      }),
     )
 
     const meta = await fetchNpmMeta('@vue/compiler-sfc')
@@ -114,7 +114,7 @@ describe('resolvePackageUrl', () => {
           name: 'pinia',
           homepage: 'https://pinia.vuejs.org',
         })
-      })
+      }),
     )
 
     const url = await resolvePackageUrl('pinia')
@@ -127,7 +127,7 @@ describe('resolvePackageUrl', () => {
         return HttpResponse.json({
           name: 'no-url-pkg',
         })
-      })
+      }),
     )
 
     const url = await resolvePackageUrl('no-url-pkg')

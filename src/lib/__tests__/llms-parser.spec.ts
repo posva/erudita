@@ -92,18 +92,20 @@ describe('parseLlmsTxt', () => {
 
 describe('resolveUrl', () => {
   it('returns absolute URLs unchanged', () => {
-    expect(resolveUrl('https://base.com', 'https://other.com/doc.md')).toBe('https://other.com/doc.md')
+    expect(resolveUrl('https://base.com', 'https://other.com/doc.md')).toBe(
+      'https://other.com/doc.md',
+    )
   })
 
   it('resolves relative URLs against base', () => {
     expect(resolveUrl('https://example.com/llms.txt', './docs/guide.md')).toBe(
-      'https://example.com/docs/guide.md'
+      'https://example.com/docs/guide.md',
     )
   })
 
   it('resolves root-relative URLs', () => {
     expect(resolveUrl('https://example.com/path/llms.txt', '/docs/guide.md')).toBe(
-      'https://example.com/docs/guide.md'
+      'https://example.com/docs/guide.md',
     )
   })
 })

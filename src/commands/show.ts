@@ -57,7 +57,9 @@ export default define({
         docEntry = doc.entries[index]
       } else {
         // Try to match by title
-        docEntry = doc.entries.find((e) => e.title.toLowerCase().includes((entry as string).toLowerCase()))
+        docEntry = doc.entries.find((e) =>
+          e.title.toLowerCase().includes((entry as string).toLowerCase()),
+        )
       }
 
       if (!docEntry) {

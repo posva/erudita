@@ -14,7 +14,7 @@ describe('fetchLlmsTxt', () => {
     server.use(
       http.get('https://example.com/llms.txt', () => {
         return HttpResponse.text('# Documentation\n\n- [Guide](./guide.md)')
-      })
+      }),
     )
 
     const result = await fetchLlmsTxt('https://example.com')
@@ -30,7 +30,7 @@ describe('fetchLlmsTxt', () => {
       }),
       http.get('https://example.com/llms-full.txt', () => {
         return HttpResponse.text('# Full Docs')
-      })
+      }),
     )
 
     const result = await fetchLlmsTxt('https://example.com')
@@ -44,7 +44,7 @@ describe('fetchLlmsTxt', () => {
       }),
       http.get('https://example.com/llms-full.txt', () => {
         return new HttpResponse(null, { status: 404 })
-      })
+      }),
     )
 
     const result = await fetchLlmsTxt('https://example.com')
@@ -55,7 +55,7 @@ describe('fetchLlmsTxt', () => {
     server.use(
       http.get('https://example.com/llms.txt', () => {
         return HttpResponse.text('# Docs')
-      })
+      }),
     )
 
     const result = await fetchLlmsTxt('https://example.com/')
@@ -79,7 +79,7 @@ describe('fetchPackageDocs', () => {
       }),
       http.get('https://example.com/api.md', () => {
         return HttpResponse.text('# API\n\n## Functions')
-      })
+      }),
     )
 
     const result = await fetchPackageDocs('https://example.com')
@@ -98,7 +98,7 @@ describe('fetchPackageDocs', () => {
       }),
       http.get('https://example.com/llms-full.txt', () => {
         return new HttpResponse(null, { status: 404 })
-      })
+      }),
     )
 
     const result = await fetchPackageDocs('https://example.com')
@@ -119,7 +119,7 @@ describe('fetchPackageDocs', () => {
       }),
       http.get('https://example.com/missing.md', () => {
         return new HttpResponse(null, { status: 404 })
-      })
+      }),
     )
 
     const result = await fetchPackageDocs('https://example.com')

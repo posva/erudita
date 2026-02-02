@@ -98,7 +98,8 @@ export default define({
         onProgress(event) {
           if (event.phase === 'docs') {
             lastErrors = event.errors
-            const errStr = event.errors > 0 ? ` (${event.errors} error${event.errors > 1 ? 's' : ''})` : ''
+            const errStr =
+              event.errors > 0 ? ` (${event.errors} error${event.errors > 1 ? 's' : ''})` : ''
             const line = `  [${event.completed}/${event.total}] ${pkg}${errStr}`
             process.stdout.write(`\r\x1b[K${line}`)
           }

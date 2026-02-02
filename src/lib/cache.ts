@@ -124,7 +124,7 @@ export function cachePackage(
   sourceUrl: string,
   _doc: LlmsDoc,
   rawLlmsTxt: string,
-  docFiles: Map<string, string>
+  docFiles: Map<string, string>,
 ): void {
   const packageDir = getPackageDir(packageName)
   const docsDir = join(packageDir, 'docs')

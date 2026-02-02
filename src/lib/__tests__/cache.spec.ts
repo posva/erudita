@@ -15,7 +15,10 @@ import {
   removeFromCache,
 } from '../cache.ts'
 
-const testCacheDir = join(tmpdir(), 'erudita-test-cache-' + Date.now() + '-' + Math.random().toString(36).slice(2))
+const testCacheDir = join(
+  tmpdir(),
+  'erudita-test-cache-' + Date.now() + '-' + Math.random().toString(36).slice(2),
+)
 
 describe('cache', () => {
   beforeEach(() => {
@@ -103,7 +106,13 @@ describe('cache', () => {
         title: 'Test',
         entries: [{ title: 'API', url: './api.md' }],
       }
-      cachePackage('doc-test', 'https://test.com', doc, '# Test Doc\n\n- [API Reference](./api.md)', new Map())
+      cachePackage(
+        'doc-test',
+        'https://test.com',
+        doc,
+        '# Test Doc\n\n- [API Reference](./api.md)',
+        new Map(),
+      )
 
       const cachedDoc = getCachedDoc('doc-test')
       expect(cachedDoc).not.toBeNull()
