@@ -56,6 +56,7 @@ async function fetchWithRetry(
         signal: controller.signal,
         headers: {
           'User-Agent': 'erudita-cli/0.0.0',
+          // q= is quality value (0-1) for content negotiation priority
           Accept: 'text/markdown, text/plain;q=0.9, */*;q=0.8',
         },
       })
