@@ -89,7 +89,8 @@ export default define({
 
       if (keys.length === 0) {
         if (removedLinks.length > 0) {
-          console.log(`Removed ${removedLinks.length} package link(s) not in erudita.json.`)
+          console.log(`Removed ${removedLinks.length} package link(s) not in erudita.json:`)
+          removedLinks.forEach((key) => console.log(`  ${key}`))
         }
         console.log('Usage: erudita install <packages...>')
         console.log('       erudita install --deps <dev|prod|all> (from package.json)')
@@ -98,7 +99,9 @@ export default define({
       }
 
       if (removedLinks.length > 0) {
-        console.log(`Removed ${removedLinks.length} package link(s) not in erudita.json.\n`)
+        console.log(`Removed ${removedLinks.length} package link(s) not in erudita.json:`)
+        removedLinks.forEach((key) => console.log(`  ${key}`))
+        console.log('')
       }
 
       console.log(`Installing ${keys.length} package(s) from erudita.json...\n`)
