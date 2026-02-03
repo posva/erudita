@@ -12,6 +12,7 @@ import {
   ensureGitignore,
   pruneProjectLinks,
 } from '../lib/project.ts'
+import type { ProjectLinkMode } from '../types.ts'
 
 type DepsFilter = 'all' | 'dev' | 'prod'
 
@@ -50,6 +51,11 @@ export default define({
       short: 'd',
       description: 'Install from package.json: dev, prod, or all',
     },
+    mode: {
+      type: 'string',
+      short: 'm',
+      description: 'Install mode: link (default) or copy',
+    },
     force: {
       type: 'boolean',
       short: 'f',
@@ -62,9 +68,12 @@ export default define({
     },
   },
   run: async (ctx) => {
-    const { deps, force = false, concurrency: concurrencyStr } = ctx.values
+    const { deps, mode, force = false, concurrency: concurrencyStr } = ctx.values
     const concurrency = concurrencyStr ? parseInt(concurrencyStr, 10) : undefined
     const cwd = process.cwd()
+    const modeValue = typeof mode === 'string' ? mode.trim() : ''
+    const cliLinkMode =
+      modeValue === 'link' || modeValue === 'copy' ? (modeValue as ProjectLinkMode) : null
 
     // Positional args are package names
     let packagesToInstall = (ctx.positionals as string[]).filter(
@@ -84,6 +93,16 @@ export default define({
     // No args: install from erudita.json
     if (packagesToInstall.length === 0 && !deps) {
       const config = getOrCreateProjectConfig(cwd)
+      if (modeValue && !cliLinkMode) {
+        console.log(`Invalid --mode value "${modeValue}". Use "link" or "copy".`)
+        return
+      }
+      if (cliLinkMode && config.linkMode !== cliLinkMode) {
+        config.linkMode = cliLinkMode
+        writeProjectConfig(cwd, config)
+      }
+      const linkMode = cliLinkMode || config.linkMode || 'link'
+      const actionLabel = linkMode === 'copy' ? 'copy' : 'link'
       const keys = Object.keys(config.packages)
       const removedLinks = pruneProjectLinks(cwd, new Set(keys))
 
@@ -115,8 +134,8 @@ export default define({
 
         if (cached && !force) {
           // Already cached, just create symlink
-          createPackageLink(cwd, packageKey)
-          console.log(`  [link] ${packageKey}`)
+          createPackageLink(cwd, packageKey, linkMode)
+          console.log(`  [${actionLabel}] ${packageKey}`)
           successCount++
           continue
         }
@@ -145,7 +164,7 @@ export default define({
         }
 
         cachePackage(packageKey, url, result.doc!, result.rawLlmsTxt!, result.docFiles!)
-        createPackageLink(cwd, packageKey)
+        createPackageLink(cwd, packageKey, linkMode)
 
         const docCount = result.docFiles?.size || 0
         const errStr = lastErrors > 0 ? `, ${lastErrors} error${lastErrors > 1 ? 's' : ''}` : ''
@@ -162,6 +181,15 @@ export default define({
     console.log(`Installing ${packagesToInstall.length} package(s)...\n`)
 
     const config = getOrCreateProjectConfig(cwd)
+    if (modeValue && !cliLinkMode) {
+      console.log(`Invalid --mode value "${modeValue}". Use "link" or "copy".`)
+      return
+    }
+    if (cliLinkMode) {
+      config.linkMode = cliLinkMode
+    }
+    const linkMode = cliLinkMode || config.linkMode || 'link'
+    const actionLabel = linkMode === 'copy' ? 'copy' : 'link'
     let successCount = 0
     let failCount = 0
 
@@ -179,8 +207,8 @@ export default define({
             config.packages[packageKey] = { url }
           }
         }
-        createPackageLink(cwd, packageKey)
-        console.log(`  [link] ${packageKey} (already cached)`)
+        createPackageLink(cwd, packageKey, linkMode)
+        console.log(`  [${actionLabel}] ${packageKey} (already cached)`)
         successCount++
         continue
       }
@@ -222,7 +250,7 @@ export default define({
       // Cache and link
       cachePackage(packageKey, url, result.doc!, result.rawLlmsTxt!, result.docFiles!)
       config.packages[packageKey] = { url }
-      createPackageLink(cwd, packageKey)
+      createPackageLink(cwd, packageKey, linkMode)
 
       const docCount = result.docFiles?.size || 0
       const errStr = lastErrors > 0 ? `, ${lastErrors} error${lastErrors > 1 ? 's' : ''}` : ''

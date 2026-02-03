@@ -61,11 +61,18 @@ export interface FetchProgressEvent {
 export type FetchProgressCallback = (event: FetchProgressEvent) => void
 
 /**
+ * How docs are installed into the project
+ */
+export type ProjectLinkMode = 'link' | 'copy'
+
+/**
  * Project-level erudita.json config (committed)
  */
 export interface EruditaProject {
   /** Package docs to install. Key = "name" or "name@version" */
   packages: Record<string, { url: string }>
+  /** How docs are installed into .erudita (default: link) */
+  linkMode?: ProjectLinkMode
 }
 
 /**

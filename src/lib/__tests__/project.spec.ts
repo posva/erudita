@@ -157,6 +157,48 @@ describe('project', () => {
       expect(existsSync(linkPath)).toBe(true)
       expect(lstatSync(linkPath).isSymbolicLink()).toBe(true)
     })
+
+    it('copies cache dir when mode is copy', () => {
+      const packageKey = 'vite'
+      const cacheDir = join(testCacheDir, 'packages', packageKey)
+      mkdirSync(cacheDir, { recursive: true })
+      writeFileSync(join(cacheDir, 'llms.txt'), 'docs')
+
+      createPackageLink(testDir, packageKey, 'copy')
+
+      const linkPath = join(testDir, '.erudita', packageKey)
+      expect(existsSync(linkPath)).toBe(true)
+      expect(lstatSync(linkPath).isSymbolicLink()).toBe(false)
+      expect(lstatSync(linkPath).isDirectory()).toBe(true)
+      expect(readFileSync(join(linkPath, 'llms.txt'), 'utf-8')).toBe('docs')
+    })
+
+    it('replaces existing symlink with a copy', () => {
+      const packageKey = 'nuxt'
+      const cacheDir = join(testCacheDir, 'packages', packageKey)
+      mkdirSync(cacheDir, { recursive: true })
+
+      createPackageLink(testDir, packageKey)
+      createPackageLink(testDir, packageKey, 'copy')
+
+      const linkPath = join(testDir, '.erudita', packageKey)
+      expect(existsSync(linkPath)).toBe(true)
+      expect(lstatSync(linkPath).isSymbolicLink()).toBe(false)
+      expect(lstatSync(linkPath).isDirectory()).toBe(true)
+    })
+
+    it('replaces existing copy with a symlink', () => {
+      const packageKey = 'vue-demi'
+      const cacheDir = join(testCacheDir, 'packages', packageKey)
+      mkdirSync(cacheDir, { recursive: true })
+
+      createPackageLink(testDir, packageKey, 'copy')
+      createPackageLink(testDir, packageKey)
+
+      const linkPath = join(testDir, '.erudita', packageKey)
+      expect(existsSync(linkPath)).toBe(true)
+      expect(lstatSync(linkPath).isSymbolicLink()).toBe(true)
+    })
   })
 
   describe('removePackageLink', () => {
@@ -166,6 +208,19 @@ describe('project', () => {
       mkdirSync(cacheDir, { recursive: true })
 
       createPackageLink(testDir, packageKey)
+      const removed = removePackageLink(testDir, packageKey)
+
+      const linkPath = join(testDir, '.erudita', packageKey)
+      expect(removed).toBe(true)
+      expect(existsSync(linkPath)).toBe(false)
+    })
+
+    it('removes an existing copied directory', () => {
+      const packageKey = 'vite'
+      const cacheDir = join(testCacheDir, 'packages', packageKey)
+      mkdirSync(cacheDir, { recursive: true })
+
+      createPackageLink(testDir, packageKey, 'copy')
       const removed = removePackageLink(testDir, packageKey)
 
       const linkPath = join(testDir, '.erudita', packageKey)
@@ -193,6 +248,22 @@ describe('project', () => {
       expect(removed).toEqual([vueKey])
       expect(existsSync(join(testDir, '.erudita', vueKey))).toBe(false)
       expect(existsSync(join(testDir, '.erudita', '@vue__test-utils'))).toBe(true)
+    })
+
+    it('removes copied directories not present in config', () => {
+      const vueKey = 'vue'
+      const piniaKey = 'pinia'
+      mkdirSync(join(testCacheDir, 'packages', vueKey), { recursive: true })
+      mkdirSync(join(testCacheDir, 'packages', piniaKey), { recursive: true })
+
+      createPackageLink(testDir, vueKey, 'copy')
+      createPackageLink(testDir, piniaKey, 'copy')
+
+      const removed = pruneProjectLinks(testDir, new Set([piniaKey]))
+
+      expect(removed).toEqual([vueKey])
+      expect(existsSync(join(testDir, '.erudita', vueKey))).toBe(false)
+      expect(existsSync(join(testDir, '.erudita', piniaKey))).toBe(true)
     })
   })
 

@@ -1,15 +1,17 @@
 import {
+  cpSync,
   existsSync,
   mkdirSync,
   readFileSync,
   readdirSync,
   lstatSync,
+  rmSync,
   symlinkSync,
   unlinkSync,
   writeFileSync,
 } from 'node:fs'
 import { join } from 'node:path'
-import type { EruditaProject, ParsedPackageKey } from '../types.ts'
+import type { EruditaProject, ParsedPackageKey, ProjectLinkMode } from '../types.ts'
 import { getPackageCacheDir } from './cache.ts'
 
 const PROJECT_CONFIG_FILE = 'erudita.json'
@@ -110,16 +112,30 @@ export function ensureProjectLinkDir(cwd: string): string {
 }
 
 /**
- * Create symlink from .erudita/<key> to global cache
+ * Create a symlink or a copy from .erudita/<key> to the global cache
  */
-export function createPackageLink(cwd: string, packageKey: string): void {
+export function createPackageLink(
+  cwd: string,
+  packageKey: string,
+  mode: ProjectLinkMode = 'link',
+): void {
   const linkDir = ensureProjectLinkDir(cwd)
   const linkPath = join(linkDir, packageKey.replace('/', '__'))
   const targetPath = getPackageCacheDir(packageKey)
 
-  // Remove existing link if present
+  // Remove existing entry if present
   if (existsSync(linkPath)) {
-    unlinkSync(linkPath)
+    const stats = lstatSync(linkPath)
+    if (stats.isDirectory()) {
+      rmSync(linkPath, { recursive: true, force: true })
+    } else {
+      unlinkSync(linkPath)
+    }
+  }
+
+  if (mode === 'copy') {
+    cpSync(targetPath, linkPath, { recursive: true })
+    return
   }
 
   symlinkSync(targetPath, linkPath, 'dir')
@@ -135,7 +151,12 @@ export function removePackageLink(cwd: string, packageKey: string): boolean {
     return false
   }
 
-  unlinkSync(linkPath)
+  const stats = lstatSync(linkPath)
+  if (stats.isDirectory()) {
+    rmSync(linkPath, { recursive: true, force: true })
+  } else {
+    unlinkSync(linkPath)
+  }
   return true
 }
 
@@ -159,10 +180,10 @@ export function pruneProjectLinks(cwd: string, keepKeys: Set<string>): string[] 
     const linkPath = join(linkDir, entry)
     const stats = lstatSync(linkPath)
     if (stats.isDirectory()) {
-      continue
+      rmSync(linkPath, { recursive: true, force: true })
+    } else {
+      unlinkSync(linkPath)
     }
-
-    unlinkSync(linkPath)
     removed.push(packageKey)
   }
 
