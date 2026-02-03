@@ -7,9 +7,8 @@ description: Learn unfamiliar implementation patterns and fill in missing pieces
 
 ## Workflow
 
-- Cache docs: `erudita fetch <package...>`
 - Install docs into the project: `erudita install <package...>`
-- Install from config: `erudita install` (uses `erudita.json` and prunes stale entries)
+- Install from config: `erudita install --mode copy` (uses `erudita.json` and prunes stale entries)
 
 ## Search
 
@@ -20,4 +19,3 @@ description: Learn unfamiliar implementation patterns and fill in missing pieces
 
 - Use `erudita fetch --deps <dev|prod|all>` to cache docs for project dependencies.
 - Use `erudita install --mode <link|copy>` to control `.erudita/` install mode.
-- Use `erudita list` to see cached packages.
