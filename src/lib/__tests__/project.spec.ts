@@ -265,6 +265,20 @@ describe('project', () => {
       expect(existsSync(join(testDir, '.erudita', vueKey))).toBe(false)
       expect(existsSync(join(testDir, '.erudita', piniaKey))).toBe(true)
     })
+
+    it('skips unrelated directories', () => {
+      const vueKey = 'vue'
+      mkdirSync(join(testCacheDir, 'packages', vueKey), { recursive: true })
+
+      createPackageLink(testDir, vueKey, 'copy')
+      mkdirSync(join(testDir, '.erudita', '.osgrep'), { recursive: true })
+
+      const removed = pruneProjectLinks(testDir, new Set())
+
+      expect(removed).toEqual([vueKey])
+      expect(existsSync(join(testDir, '.erudita', vueKey))).toBe(false)
+      expect(existsSync(join(testDir, '.erudita', '.osgrep'))).toBe(true)
+    })
   })
 
   describe('isInGitignore', () => {

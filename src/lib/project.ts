@@ -10,6 +10,7 @@ import {
   unlinkSync,
   writeFileSync,
 } from 'node:fs'
+import type { Stats } from 'node:fs'
 import { join } from 'node:path'
 import type { EruditaProject, ParsedPackageKey, ProjectLinkMode } from '../types.ts'
 import { getPackageCacheDir } from './cache.ts'
@@ -172,6 +173,9 @@ export function pruneProjectLinks(cwd: string, keepKeys: Set<string>): string[] 
   const removed: string[] = []
   const entries = readdirSync(linkDir)
   for (const entry of entries) {
+    if (entry.startsWith('.')) {
+      continue
+    }
     const packageKey = entry.replace('__', '/')
     if (keepKeys.has(packageKey)) {
       continue
@@ -179,6 +183,9 @@ export function pruneProjectLinks(cwd: string, keepKeys: Set<string>): string[] 
 
     const linkPath = join(linkDir, entry)
     const stats = lstatSync(linkPath)
+    if (!isEruditaPackageEntry(linkPath, stats)) {
+      continue
+    }
     if (stats.isDirectory()) {
       rmSync(linkPath, { recursive: true, force: true })
     } else {
@@ -188,6 +195,19 @@ export function pruneProjectLinks(cwd: string, keepKeys: Set<string>): string[] 
   }
 
   return removed
+}
+
+function isEruditaPackageEntry(linkPath: string, stats: Stats): boolean {
+  if (stats.isSymbolicLink()) {
+    return true
+  }
+  if (!stats.isDirectory()) {
+    return false
+  }
+  return (
+    existsSync(join(linkPath, 'llms.txt')) ||
+    existsSync(join(linkPath, 'meta.json'))
+  )
 }
 
 /**
