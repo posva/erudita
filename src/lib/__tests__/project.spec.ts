@@ -253,8 +253,12 @@ describe('project', () => {
     it('removes copied directories not present in config', () => {
       const vueKey = 'vue'
       const piniaKey = 'pinia'
-      mkdirSync(join(testCacheDir, 'packages', vueKey), { recursive: true })
-      mkdirSync(join(testCacheDir, 'packages', piniaKey), { recursive: true })
+      const vueCacheDir = join(testCacheDir, 'packages', vueKey)
+      const piniaCacheDir = join(testCacheDir, 'packages', piniaKey)
+      mkdirSync(vueCacheDir, { recursive: true })
+      mkdirSync(piniaCacheDir, { recursive: true })
+      writeFileSync(join(vueCacheDir, 'llms.txt'), 'docs')
+      writeFileSync(join(piniaCacheDir, 'llms.txt'), 'docs')
 
       createPackageLink(testDir, vueKey, 'copy')
       createPackageLink(testDir, piniaKey, 'copy')
@@ -268,7 +272,9 @@ describe('project', () => {
 
     it('skips unrelated directories', () => {
       const vueKey = 'vue'
-      mkdirSync(join(testCacheDir, 'packages', vueKey), { recursive: true })
+      const vueCacheDir = join(testCacheDir, 'packages', vueKey)
+      mkdirSync(vueCacheDir, { recursive: true })
+      writeFileSync(join(vueCacheDir, 'llms.txt'), 'docs')
 
       createPackageLink(testDir, vueKey, 'copy')
       mkdirSync(join(testDir, '.erudita', '.osgrep'), { recursive: true })
