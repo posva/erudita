@@ -5,10 +5,12 @@ import { cachePackage, isCached } from '../lib/cache.ts'
 import { fetchPackageDocs } from '../lib/fetcher.ts'
 import { resolvePackageUrl } from '../lib/npm-resolver.ts'
 
+type DepsFilter = 'all' | 'dev' | 'prod'
+
 /**
  * Read package.json dependencies from cwd
  */
-function readPackageJsonDeps(cwd: string): string[] {
+function readPackageJsonDeps(cwd: string, filter: DepsFilter): string[] {
   const pkgPath = join(cwd, 'package.json')
   if (!existsSync(pkgPath)) {
     return []
@@ -18,7 +20,14 @@ function readPackageJsonDeps(cwd: string): string[] {
     const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'))
     const deps = Object.keys(pkg.dependencies || {})
     const devDeps = Object.keys(pkg.devDependencies || {})
-    return [...new Set([...deps, ...devDeps])]
+    switch (filter) {
+      case 'prod':
+        return deps
+      case 'dev':
+        return devDeps
+      case 'all':
+        return [...new Set([...deps, ...devDeps])]
+    }
   } catch {
     return []
   }
@@ -28,10 +37,10 @@ export default define({
   name: 'fetch',
   description: 'Fetch llms.txt documentation for packages',
   args: {
-    all: {
-      type: 'boolean',
-      short: 'a',
-      description: 'Fetch docs for all dependencies in package.json',
+    deps: {
+      type: 'string',
+      short: 'd',
+      description: 'Fetch from package.json: dev, prod, or all',
     },
     force: {
       type: 'boolean',
@@ -45,25 +54,25 @@ export default define({
     },
   },
   run: async (ctx) => {
-    const { all = false, force = false, concurrency: concurrencyStr } = ctx.values
+    const { deps, force = false, concurrency: concurrencyStr } = ctx.values
     const concurrency = concurrencyStr ? parseInt(concurrencyStr, 10) : undefined
     // Positional args are the package names (filter out the command name itself)
     let packagesToFetch = (ctx.positionals as string[]).filter((p) => p !== 'fetch')
 
-    // If --all flag, read from package.json
-    if (all) {
-      const deps = readPackageJsonDeps(process.cwd())
-      if (deps.length === 0) {
+    // If --deps flag, read from package.json
+    if (deps) {
+      const pkgDeps = readPackageJsonDeps(process.cwd(), deps as DepsFilter)
+      if (pkgDeps.length === 0) {
         console.log('No dependencies found in package.json')
         return
       }
-      packagesToFetch = deps
+      packagesToFetch = pkgDeps
     }
 
     // If no packages specified, show help
     if (packagesToFetch.length === 0) {
-      console.log('Usage: erudita fetch <packages...> or erudita fetch --all')
-      console.log('  Specify package names or use --all to fetch from package.json')
+      console.log('Usage: erudita fetch <packages...> or erudita fetch --deps <dev|prod|all>')
+      console.log('  Specify package names or use --deps to fetch from package.json')
       return
     }
 

@@ -12,10 +12,12 @@ import {
   ensureGitignore,
 } from '../lib/project.ts'
 
+type DepsFilter = 'all' | 'dev' | 'prod'
+
 /**
  * Read package.json dependencies from cwd
  */
-function readPackageJsonDeps(cwd: string): string[] {
+function readPackageJsonDeps(cwd: string, filter: DepsFilter): string[] {
   const pkgPath = join(cwd, 'package.json')
   if (!existsSync(pkgPath)) {
     return []
@@ -25,7 +27,14 @@ function readPackageJsonDeps(cwd: string): string[] {
     const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'))
     const deps = Object.keys(pkg.dependencies || {})
     const devDeps = Object.keys(pkg.devDependencies || {})
-    return [...new Set([...deps, ...devDeps])]
+    switch (filter) {
+      case 'prod':
+        return deps
+      case 'dev':
+        return devDeps
+      case 'all':
+        return [...new Set([...deps, ...devDeps])]
+    }
   } catch {
     return []
   }
@@ -35,10 +44,10 @@ export default define({
   name: 'install',
   description: 'Install llms.txt docs and link to project',
   args: {
-    all: {
-      type: 'boolean',
-      short: 'a',
-      description: 'Install from package.json dependencies',
+    deps: {
+      type: 'string',
+      short: 'd',
+      description: 'Install from package.json: dev, prod, or all',
     },
     force: {
       type: 'boolean',
@@ -52,31 +61,31 @@ export default define({
     },
   },
   run: async (ctx) => {
-    const { all = false, force = false, concurrency: concurrencyStr } = ctx.values
+    const { deps, force = false, concurrency: concurrencyStr } = ctx.values
     const concurrency = concurrencyStr ? parseInt(concurrencyStr, 10) : undefined
     const cwd = process.cwd()
 
     // Positional args are package names
     let packagesToInstall = (ctx.positionals as string[]).filter((p) => p !== 'install')
 
-    // --all: read from package.json
-    if (all) {
-      const deps = readPackageJsonDeps(cwd)
-      if (deps.length === 0) {
+    // --deps: read from package.json
+    if (deps) {
+      const pkgDeps = readPackageJsonDeps(cwd, deps as DepsFilter)
+      if (pkgDeps.length === 0) {
         console.log('No dependencies found in package.json')
         return
       }
-      packagesToInstall = deps
+      packagesToInstall = pkgDeps
     }
 
     // No args: install from erudita.json
-    if (packagesToInstall.length === 0 && !all) {
+    if (packagesToInstall.length === 0 && !deps) {
       const config = getOrCreateProjectConfig(cwd)
       const keys = Object.keys(config.packages)
 
       if (keys.length === 0) {
         console.log('Usage: erudita install <packages...>')
-        console.log('       erudita install --all (from package.json)')
+        console.log('       erudita install --deps <dev|prod|all> (from package.json)')
         console.log('\nNo packages in erudita.json yet.')
         return
       }
