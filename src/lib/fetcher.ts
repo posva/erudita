@@ -56,6 +56,7 @@ async function fetchWithRetry(
         signal: controller.signal,
         headers: {
           'User-Agent': 'erudita-cli/0.0.0',
+          Accept: 'text/markdown, text/plain;q=0.9, */*;q=0.8',
         },
       })
 
