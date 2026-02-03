@@ -1,4 +1,4 @@
-import { extractDocUrls, parseLlmsTxt, resolveUrl } from './llms-parser.ts'
+import { extractDocUrls, filterEntriesByPath, parseLlmsTxt, resolveUrl } from './llms-parser.ts'
 import { asyncPool } from './async-pool.ts'
 import type { LlmsDoc, FetchProgressCallback } from '../types.ts'
 
@@ -20,6 +20,23 @@ const DEFAULT_CONCURRENCY = 5
 const LLMS_TXT_PATHS = ['/llms.txt', '/llms-full.txt']
 const DEFAULT_TIMEOUT = 10000
 const MAX_RETRIES = 3
+
+/**
+ * Extract root domain URL from a full URL
+ * e.g., https://oxc.rs/docs/guide/usage/formatter → https://oxc.rs
+ */
+export function extractRootUrl(url: string): string {
+  const parsed = new URL(url)
+  return `${parsed.protocol}//${parsed.host}`
+}
+
+/**
+ * Get path from URL
+ * e.g., https://oxc.rs/docs/guide/usage/formatter → /docs/guide/usage/formatter
+ */
+export function getUrlPath(url: string): string {
+  return new URL(url).pathname
+}
 
 /**
  * Fetch with timeout and retries
@@ -67,12 +84,9 @@ async function fetchWithRetry(
 }
 
 /**
- * Try to fetch llms.txt from a base URL
- * Tries multiple paths: /llms.txt, /llms-full.txt
+ * Try to fetch llms.txt from a URL, trying multiple paths
  */
-export async function fetchLlmsTxt(
-  baseUrl: string,
-): Promise<{ content: string; url: string } | null> {
+async function tryFetchLlmsTxt(baseUrl: string): Promise<{ content: string; url: string } | null> {
   for (const path of LLMS_TXT_PATHS) {
     const url = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) + path : baseUrl + path
 
@@ -83,6 +97,34 @@ export async function fetchLlmsTxt(
       if (content.includes('#')) {
         return { content, url }
       }
+    }
+  }
+
+  return null
+}
+
+/**
+ * Try to fetch llms.txt from a base URL
+ * Tries multiple paths: /llms.txt, /llms-full.txt
+ * If baseUrl has a path and direct fetch fails, tries root domain with path filtering
+ */
+export async function fetchLlmsTxt(
+  baseUrl: string,
+): Promise<{ content: string; url: string; pathPrefix?: string } | null> {
+  // Try direct fetch first (existing behavior)
+  const directResult = await tryFetchLlmsTxt(baseUrl)
+  if (directResult) {
+    return directResult
+  }
+
+  // If baseUrl has a path, try root domain fallback
+  const urlPath = getUrlPath(baseUrl)
+  if (urlPath && urlPath !== '/') {
+    const rootUrl = extractRootUrl(baseUrl)
+    const rootResult = await tryFetchLlmsTxt(rootUrl)
+    if (rootResult) {
+      // Return with pathPrefix so caller can filter entries
+      return { ...rootResult, pathPrefix: urlPath }
     }
   }
 
@@ -121,6 +163,19 @@ export async function fetchPackageDocs(
 
   // Parse the content
   const doc = parseLlmsTxt(llmsResult.content)
+
+  // Filter entries by path prefix if fetched from root domain
+  if (llmsResult.pathPrefix) {
+    doc.entries = filterEntriesByPath(doc.entries, llmsResult.pathPrefix)
+    // If no entries match the path prefix, report error
+    if (doc.entries.length === 0) {
+      return {
+        success: false,
+        error: `No documentation found for path ${llmsResult.pathPrefix}`,
+      }
+    }
+  }
+
   if (!doc.title && doc.entries.length === 0) {
     return {
       success: false,

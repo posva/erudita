@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { extractDocUrls, parseLlmsTxt, resolveUrl } from '../llms-parser.ts'
+import { extractDocUrls, filterEntriesByPath, parseLlmsTxt, resolveUrl } from '../llms-parser.ts'
 
 describe('parseLlmsTxt', () => {
   it('parses title from H1', () => {
@@ -126,5 +126,73 @@ describe('extractDocUrls', () => {
       'https://other.com/b.md',
       'https://example.com/c.md',
     ])
+  })
+})
+
+describe('filterEntriesByPath', () => {
+  it('filters entries by path prefix', () => {
+    const entries = [
+      { title: 'A', url: '/docs/section/a.md' },
+      { title: 'B', url: '/docs/section/b.md' },
+      { title: 'C', url: '/docs/other/c.md' },
+    ]
+    const filtered = filterEntriesByPath(entries, '/docs/section')
+    expect(filtered).toHaveLength(2)
+    expect(filtered.map((e) => e.url)).toEqual(['/docs/section/a.md', '/docs/section/b.md'])
+  })
+
+  it('handles absolute URLs', () => {
+    const entries = [
+      { title: 'A', url: 'https://example.com/docs/section/a.md' },
+      { title: 'B', url: 'https://example.com/docs/other/b.md' },
+    ]
+    const filtered = filterEntriesByPath(entries, '/docs/section')
+    expect(filtered).toHaveLength(1)
+    expect(filtered[0].url).toBe('https://example.com/docs/section/a.md')
+  })
+
+  it('handles relative URLs without leading slash', () => {
+    const entries = [
+      { title: 'A', url: 'docs/section/a.md' },
+      { title: 'B', url: 'docs/other/b.md' },
+    ]
+    const filtered = filterEntriesByPath(entries, '/docs/section')
+    expect(filtered).toHaveLength(1)
+    expect(filtered[0].url).toBe('docs/section/a.md')
+  })
+
+  it('handles path prefix with trailing slash', () => {
+    const entries = [
+      { title: 'A', url: '/docs/section/a.md' },
+      { title: 'B', url: '/docs/other/b.md' },
+    ]
+    const filtered = filterEntriesByPath(entries, '/docs/section/')
+    expect(filtered).toHaveLength(1)
+    expect(filtered[0].url).toBe('/docs/section/a.md')
+  })
+
+  it('matches exact path (not just prefix)', () => {
+    const entries = [
+      { title: 'A', url: '/docs/section-extra/a.md' },
+      { title: 'B', url: '/docs/section/b.md' },
+    ]
+    const filtered = filterEntriesByPath(entries, '/docs/section')
+    expect(filtered).toHaveLength(1)
+    expect(filtered[0].url).toBe('/docs/section/b.md')
+  })
+
+  it('returns empty array when no entries match', () => {
+    const entries = [{ title: 'A', url: '/docs/other/a.md' }]
+    const filtered = filterEntriesByPath(entries, '/docs/section')
+    expect(filtered).toHaveLength(0)
+  })
+
+  it('includes entry that exactly matches path prefix', () => {
+    const entries = [
+      { title: 'Index', url: '/docs/section' },
+      { title: 'A', url: '/docs/section/a.md' },
+    ]
+    const filtered = filterEntriesByPath(entries, '/docs/section')
+    expect(filtered).toHaveLength(2)
   })
 })

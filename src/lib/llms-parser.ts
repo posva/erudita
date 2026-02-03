@@ -110,3 +110,24 @@ export function resolveUrl(baseUrl: string, relativeUrl: string): string {
 export function extractDocUrls(doc: LlmsDoc, baseUrl: string): string[] {
   return doc.entries.map((entry) => resolveUrl(baseUrl, entry.url))
 }
+
+/**
+ * Filter entries to only those whose URLs match a path prefix
+ * Used when fetching llms.txt from root domain for subdocs
+ */
+export function filterEntriesByPath(entries: LlmsEntry[], pathPrefix: string): LlmsEntry[] {
+  // Normalize path prefix (remove trailing slash for consistent matching)
+  const normalizedPrefix = pathPrefix.endsWith('/') ? pathPrefix.slice(0, -1) : pathPrefix
+
+  return entries.filter((entry) => {
+    // Get the path from the entry URL
+    const entryPath = entry.url.startsWith('http')
+      ? new URL(entry.url).pathname
+      : entry.url.startsWith('/')
+        ? entry.url
+        : `/${entry.url}`
+
+    // Check if entry path starts with the prefix
+    return entryPath.startsWith(normalizedPrefix + '/') || entryPath === normalizedPrefix
+  })
+}
