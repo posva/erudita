@@ -12,7 +12,7 @@ export default define({
   run: async (ctx) => {
     const cwd = process.cwd()
     const packagesToRemove = (ctx.positionals as string[]).filter(
-      (p) => p !== 'uninstall' && p !== 'u',
+      (p) => p !== 'uninstall' && p !== 'un',
     )
 
     const config = readProjectConfig(cwd)

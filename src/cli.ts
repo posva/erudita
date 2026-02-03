@@ -39,6 +39,6 @@ await cli(process.argv.slice(2), mainCommand, {
     update: updateCommand,
     clear: clearCommand,
     uninstall: uninstallCommand,
-    u: uninstallCommand,
+    un: uninstallCommand,
   },
 })
