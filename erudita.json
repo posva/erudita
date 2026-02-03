@@ -5,6 +5,12 @@
     },
     "vue-router": {
       "url": "https://router.vuejs.org"
+    },
+    "vitest": {
+      "url": "https://vitest.dev"
+    },
+    "tsdown": {
+      "url": "https://tsdown.dev"
     }
   },
   "linkMode": "copy"
