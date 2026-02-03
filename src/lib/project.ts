@@ -122,7 +122,7 @@ export function createPackageLink(cwd: string, packageKey: string): void {
     unlinkSync(linkPath)
   }
 
-  symlinkSync(targetPath, linkPath)
+  symlinkSync(targetPath, linkPath, 'dir')
 }
 
 /**
