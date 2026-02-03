@@ -22,6 +22,18 @@ erudita fetch vue
 erudita list
 ```
 
+## Development
+
+To test the CLI locally during development:
+
+```bash
+pnpm build
+pnpm link --global
+erudita --help
+```
+
+To unlink: `pnpm unlink --global erudita`
+
 ## License
 
 MIT
