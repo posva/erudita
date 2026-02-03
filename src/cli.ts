@@ -1,12 +1,13 @@
 #!/usr/bin/env node
-import { cli } from 'gunshi'
+import { cli, define } from 'gunshi'
+import pkg from '../package.json' with { type: 'json' }
 import fetchCommand from './commands/fetch.ts'
 import listCommand from './commands/list.ts'
 import showCommand from './commands/show.ts'
 import updateCommand from './commands/update.ts'
 import clearCommand from './commands/clear.ts'
 
-const mainCommand = {
+const mainCommand = define({
   name: 'erudita',
   description: 'CLI for downloading and caching documentation from llms.txt',
   run: () => {
@@ -19,11 +20,11 @@ const mainCommand = {
     console.log('  clear   Remove cached documentation')
     console.log('\nRun `erudita <command> --help` for more information.')
   },
-}
+})
 
 await cli(process.argv.slice(2), mainCommand, {
   name: 'erudita',
-  version: '0.0.0',
+  version: pkg.version,
   description: 'CLI for downloading and caching documentation from llms.txt',
   subCommands: {
     fetch: fetchCommand,
