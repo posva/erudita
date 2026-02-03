@@ -66,7 +66,9 @@ export default define({
     const cwd = process.cwd()
 
     // Positional args are package names
-    let packagesToInstall = (ctx.positionals as string[]).filter((p) => p !== 'install')
+    let packagesToInstall = (ctx.positionals as string[]).filter(
+      (p) => p !== 'install' && p !== 'i',
+    )
 
     // --deps: read from package.json
     if (deps) {
