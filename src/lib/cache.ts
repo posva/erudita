@@ -51,11 +51,18 @@ export function ensureCacheDir(): string {
 
 /**
  * Get path to a package's cache directory
+ * Supports versioned keys like "vue@3.4.0" and scoped packages "@scope/name"
  */
-function getPackageDir(packageName: string): string {
+export function getPackageCacheDir(packageKey: string): string {
   // Handle scoped packages: @scope/name -> @scope__name
-  const safeName = packageName.replace('/', '__')
+  // The full key (including version) becomes the folder name
+  const safeName = packageKey.replace('/', '__')
   return join(getCacheDir(), 'packages', safeName)
+}
+
+// Internal alias for backwards compatibility
+function getPackageDir(packageName: string): string {
+  return getPackageCacheDir(packageName)
 }
 
 /**

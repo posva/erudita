@@ -59,3 +59,19 @@ export interface FetchProgressEvent {
 }
 
 export type FetchProgressCallback = (event: FetchProgressEvent) => void
+
+/**
+ * Project-level erudita.json config (committed)
+ */
+export interface EruditaProject {
+  /** Package docs to install. Key = "name" or "name@version" */
+  packages: Record<string, { url: string }>
+}
+
+/**
+ * Parsed package key with optional version
+ */
+export interface ParsedPackageKey {
+  name: string
+  version: string | null
+}
