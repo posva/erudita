@@ -10,6 +10,7 @@ import {
   writeProjectConfig,
   createPackageLink,
   ensureGitignore,
+  pruneProjectLinks,
 } from '../lib/project.ts'
 
 type DepsFilter = 'all' | 'dev' | 'prod'
@@ -84,12 +85,20 @@ export default define({
     if (packagesToInstall.length === 0 && !deps) {
       const config = getOrCreateProjectConfig(cwd)
       const keys = Object.keys(config.packages)
+      const removedLinks = pruneProjectLinks(cwd, new Set(keys))
 
       if (keys.length === 0) {
+        if (removedLinks.length > 0) {
+          console.log(`Removed ${removedLinks.length} package link(s) not in erudita.json.`)
+        }
         console.log('Usage: erudita install <packages...>')
         console.log('       erudita install --deps <dev|prod|all> (from package.json)')
         console.log('\nNo packages in erudita.json yet.')
         return
+      }
+
+      if (removedLinks.length > 0) {
+        console.log(`Removed ${removedLinks.length} package link(s) not in erudita.json.\n`)
       }
 
       console.log(`Installing ${keys.length} package(s) from erudita.json...\n`)

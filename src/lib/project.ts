@@ -2,6 +2,8 @@ import {
   existsSync,
   mkdirSync,
   readFileSync,
+  readdirSync,
+  lstatSync,
   symlinkSync,
   unlinkSync,
   writeFileSync,
@@ -121,6 +123,50 @@ export function createPackageLink(cwd: string, packageKey: string): void {
   }
 
   symlinkSync(targetPath, linkPath)
+}
+
+/**
+ * Remove symlink from .erudita/<key>
+ */
+export function removePackageLink(cwd: string, packageKey: string): boolean {
+  const linkDir = getProjectLinkDir(cwd)
+  const linkPath = join(linkDir, packageKey.replace('/', '__'))
+  if (!existsSync(linkPath)) {
+    return false
+  }
+
+  unlinkSync(linkPath)
+  return true
+}
+
+/**
+ * Remove .erudita links not present in the provided set of keys
+ */
+export function pruneProjectLinks(cwd: string, keepKeys: Set<string>): string[] {
+  const linkDir = getProjectLinkDir(cwd)
+  if (!existsSync(linkDir)) {
+    return []
+  }
+
+  const removed: string[] = []
+  const entries = readdirSync(linkDir)
+  for (const entry of entries) {
+    const packageKey = entry.replace('__', '/')
+    if (keepKeys.has(packageKey)) {
+      continue
+    }
+
+    const linkPath = join(linkDir, entry)
+    const stats = lstatSync(linkPath)
+    if (stats.isDirectory()) {
+      continue
+    }
+
+    unlinkSync(linkPath)
+    removed.push(packageKey)
+  }
+
+  return removed
 }
 
 /**

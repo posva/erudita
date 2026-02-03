@@ -7,6 +7,7 @@ import listCommand from './commands/list.ts'
 import showCommand from './commands/show.ts'
 import updateCommand from './commands/update.ts'
 import clearCommand from './commands/clear.ts'
+import uninstallCommand from './commands/uninstall.ts'
 
 const mainCommand = define({
   name: 'erudita',
@@ -20,6 +21,7 @@ const mainCommand = define({
     console.log('  show    Display cached documentation for a package')
     console.log('  update  Refresh cached documentation for packages')
     console.log('  clear   Remove cached documentation')
+    console.log('  uninstall Remove docs links from the project')
     console.log('\nRun `erudita <command> --help` for more information.')
   },
 })
@@ -36,5 +38,7 @@ await cli(process.argv.slice(2), mainCommand, {
     show: showCommand,
     update: updateCommand,
     clear: clearCommand,
+    uninstall: uninstallCommand,
+    u: uninstallCommand,
   },
 })

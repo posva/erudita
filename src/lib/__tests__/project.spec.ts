@@ -10,7 +10,9 @@ import {
   getOrCreateProjectConfig,
   isInGitignore,
   parsePackageKey,
+  pruneProjectLinks,
   readProjectConfig,
+  removePackageLink,
   writeProjectConfig,
 } from '../project.ts'
 
@@ -154,6 +156,43 @@ describe('project', () => {
       const linkPath = join(testDir, '.erudita', '@vue__test-utils')
       expect(existsSync(linkPath)).toBe(true)
       expect(lstatSync(linkPath).isSymbolicLink()).toBe(true)
+    })
+  })
+
+  describe('removePackageLink', () => {
+    it('removes an existing symlink', () => {
+      const packageKey = 'vue'
+      const cacheDir = join(testCacheDir, 'packages', packageKey)
+      mkdirSync(cacheDir, { recursive: true })
+
+      createPackageLink(testDir, packageKey)
+      const removed = removePackageLink(testDir, packageKey)
+
+      const linkPath = join(testDir, '.erudita', packageKey)
+      expect(removed).toBe(true)
+      expect(existsSync(linkPath)).toBe(false)
+    })
+
+    it('returns false for missing links', () => {
+      expect(removePackageLink(testDir, 'pinia')).toBe(false)
+    })
+  })
+
+  describe('pruneProjectLinks', () => {
+    it('removes links not present in config', () => {
+      const vueKey = 'vue'
+      const scopedKey = '@vue/test-utils'
+      mkdirSync(join(testCacheDir, 'packages', vueKey), { recursive: true })
+      mkdirSync(join(testCacheDir, 'packages', '@vue__test-utils'), { recursive: true })
+
+      createPackageLink(testDir, vueKey)
+      createPackageLink(testDir, scopedKey)
+
+      const removed = pruneProjectLinks(testDir, new Set([scopedKey]))
+
+      expect(removed).toEqual([vueKey])
+      expect(existsSync(join(testDir, '.erudita', vueKey))).toBe(false)
+      expect(existsSync(join(testDir, '.erudita', '@vue__test-utils'))).toBe(true)
     })
   })
 
