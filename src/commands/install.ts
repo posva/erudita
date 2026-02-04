@@ -4,6 +4,7 @@ import { define } from 'gunshi'
 import { cachePackage, isCached, getPackageCacheDir } from '../lib/cache.ts'
 import { fetchPackageDocs } from '../lib/fetcher.ts'
 import { resolvePackageUrl } from '../lib/npm-resolver.ts'
+import { validateUrl } from '../lib/url-utils.ts'
 import {
   parsePackageKey,
   getOrCreateProjectConfig,
@@ -66,9 +67,19 @@ export default define({
       short: 'c',
       description: 'Number of concurrent downloads (default: 5)',
     },
+    homepage: {
+      type: 'string',
+      description: 'Manually specify website URL for package',
+    },
   },
   run: async (ctx) => {
-    const { deps, mode, force = false, concurrency: concurrencyStr } = ctx.values
+    const {
+      deps,
+      mode,
+      force = false,
+      concurrency: concurrencyStr,
+      homepage: manualUrl,
+    } = ctx.values
     const concurrency = concurrencyStr ? parseInt(concurrencyStr, 10) : undefined
     const cwd = process.cwd()
     const modeValue = typeof mode === 'string' ? mode.trim() : ''
@@ -79,6 +90,23 @@ export default define({
     let packagesToInstall = (ctx.positionals as string[]).filter(
       (p) => p !== 'install' && p !== 'i',
     )
+
+    // Validate --homepage flag usage
+    if (manualUrl) {
+      if (deps) {
+        console.log('Error: --homepage cannot be used with --deps flag')
+        return
+      }
+      if (packagesToInstall.length !== 1) {
+        console.log('Error: --homepage can only be used when installing exactly one package')
+        return
+      }
+      const validatedUrl = validateUrl(manualUrl)
+      if (!validatedUrl) {
+        console.log(`Error: Invalid URL format "${manualUrl}". Must be a valid http/https URL.`)
+        return
+      }
+    }
 
     // --deps: read from package.json
     if (deps) {
@@ -218,7 +246,11 @@ export default define({
       // Resolve URL from npm if not in config
       let url = config.packages[packageKey]?.url
       if (!url) {
-        url = await resolvePackageUrl(name)
+        if (manualUrl) {
+          url = validateUrl(manualUrl)
+        } else {
+          url = await resolvePackageUrl(name)
+        }
         if (!url) {
           process.stdout.write(`\r\x1b[K  [fail] ${packageKey} - could not find website URL\n`)
           failCount++
